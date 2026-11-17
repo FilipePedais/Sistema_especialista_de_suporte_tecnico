@@ -33,9 +33,6 @@ O sistema combina aprendizado de máquina com regras SE... ENTÃO....
 | Componente | Onde está no código | O que faz |
 |---|---|---|
 | Base de dados | `dados` | Armazena exemplos simulados de problemas de internet |
-| Aprendizado de máquina | `DecisionTreeClassifier` | Aprende com os exemplos e prevê uma categoria de problema |
-| Treinamento | `train_test_split` e `modelo.fit()` | Separa os dados e treina o modelo |
-| Avaliação | `accuracy_score` e `confusion_matrix` | Mostra a acurácia e a matriz de confusão |
 | Fatos | `roteador`, `wifi` e `outro` | Armazena as respostas do usuário |
 | Base de conhecimento | Condições `if` e `elif` | Contém as regras SE... ENTÃO... |
 | Motor de inferência | Condições dentro de `analisar()` | Verifica as respostas e identifica qual regra deve ser aplicada |
