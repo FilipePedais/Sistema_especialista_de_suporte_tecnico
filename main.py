@@ -1,116 +1,150 @@
+# Sistema Especialista de Suporte Tecnico
 
-# Sistema especialista de suporte técnico
+import unicodedata
 
 import pandas as pd
-from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.metrics import accuracy_score, confusion_matrix
 
-# 1. Dados simulados
+
 dados = pd.DataFrame({
-    "roteador": [0,0,0,0, 1,1,1,1, 1,1,1,1, 1,1,1,1],
-    "wifi":     [0,0,0,0, 0,0,0,0, 1,1,1,1, 1,1,1,1],
-    "outro":    [0,0,0,0, 0,0,1,1, 0,0,1,1, 0,0,1,1],
+    "roteador": [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    "wifi":     [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+    "outro":    [0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1],
     "problema": [
         "roteador", "roteador", "roteador", "roteador",
         "wifi", "wifi", "wifi", "wifi",
         "provedor", "provedor", "dispositivo", "dispositivo",
-        "provedor", "provedor", "dispositivo", "dispositivo"
-    ]
+        "provedor", "provedor", "dispositivo", "dispositivo",
+    ],
 })
 
-# 2. Treinamento do modelo
-X = dados[["roteador", "wifi", "outro"]]
-y = dados["problema"]
-
-X_treino, X_teste, y_treino, y_teste = train_test_split(
-    X, y, test_size=0.25, random_state=42, stratify=y
-)
-
+colunas = ["roteador", "wifi", "outro"]
 modelo = DecisionTreeClassifier(max_depth=3, random_state=42)
-modelo.fit(X_treino, y_treino)
+modelo.fit(dados[colunas], dados["problema"])
 
 
-# 3. Perguntas ao usuário
-def perguntar(pergunta):
-
-    sim = [
-        "s", "sim", "ss"
-    ]
-
-    nao = [
-        "n", "não", "nao"
-    ]
-
-    resposta = input(pergunta + " (s/n): ").strip().lower()
-
-    while resposta not in sim and resposta not in nao:
-        resposta = input("Não entendi. Responda sim ou não: ").strip().lower()
-
-    if resposta in sim:
-        return 1
-    else:
-        return 0
+def normalizar(texto):
+    texto = unicodedata.normalize("NFD", texto.strip().lower())
+    return "".join(letra for letra in texto if unicodedata.category(letra) != "Mn")
 
 
-# 4. Análise do problema
-def analisar():
+def perguntar(texto):
+    respostas_sim = {
+        "s", "sim",
+    }
+    
+    respostas_nao = {
+        "n", "nao",
+    }
 
-    print("\nVamos verificar sua internet!\n")
+    resposta = normalizar(input(f"\n{texto} (s/n): "))
+    if resposta in {"exit", "sair"}:
+        print("\nBeleza! Ate mais.")
+        raise SystemExit
 
-    roteador = perguntar("As luzes do roteador estão acesas?\n")
-    wifi = perguntar("A rede Wi-Fi aparece?\n")
-    outro = perguntar("Outro aparelho consegue acessar a internet?\n")
+    while resposta not in respostas_sim and resposta not in respostas_nao:
+        resposta = normalizar(input("Nao entendi. Pode responder sim ou nao? "))
+        if resposta in {"exit", "sair"}:
+            print("\nBeleza! Ate mais.")
+            raise SystemExit
 
-    caso = pd.DataFrame(
-        [[roteador, wifi, outro]],
-        columns=["roteador", "wifi", "outro"]
-    )
+    return int(resposta in respostas_sim)
 
-    # Previsão do aprendizado de máquina
+
+def diagnosticar():
+    print("\nVamos ver o que esta acontecendo!\n")
+
+    roteador = perguntar("As luzes do roteador estao acesas?")
+    wifi = perguntar("O nome da rede Wi-Fi aparece?")
+    outro = perguntar("Outro aparelho consegue acessar a internet?")
+    internet_lenta = perguntar("A internet esta muito lenta?")
+    usa_cabo = perguntar("Voce esta usando cabo de rede?")
+    cabo = perguntar("O cabo esta conectado direitinho?") if usa_cabo else 1
+    problema_recente = perguntar("A internet parou de funcionar de repente?")
+    sites_abrem = perguntar("Voce consegue acessar algum site?")
+    queda_frequente = perguntar("A internet cai e volta varias vezes?")
+    reiniciou = perguntar("Voce ja tentou reiniciar o roteador?")
+
+    caso = pd.DataFrame([[roteador, wifi, outro]], columns=colunas)
     previsao = modelo.predict(caso)[0]
+    regras = []
 
-    # 5. Regras do sistema especialista
     if roteador == 0:
-        regra = "R1"
-        resposta = "Confira a tomada e a fonte do roteador."
-
+        regras.append((
+            "R1 - Roteador desligado",
+            "Confira a tomada, a fonte e a energia do roteador.",
+        ))
     elif wifi == 0:
-        regra = "R2"
-        resposta = "Verifique se o Wi-Fi está ativado e reinicie o roteador."
-
+        regras.append((
+            "R2 - Problema na rede Wi-Fi",
+            "Ative o Wi-Fi e tente reiniciar o roteador.",
+        ))
     elif outro == 1:
-        regra = "R3"
-        resposta = "O problema pode estar no dispositivo que você está usando."
-
+        regras.append((
+            "R3 - Problema no dispositivo",
+            "Confira a configuracao de rede do dispositivo que esta falhando.",
+        ))
     else:
-        regra = "R4"
-        resposta = "Reinicie o roteador. Se continuar, fale com seu provedor."
+        regras.append((
+            "R4 - Possivel falha no provedor",
+            "Reinicie o roteador. Se continuar, fale com seu provedor.",
+        ))
 
-    # 6. Resultado
-    print("\n--- Resultado ---")
-    print("Modelo identificou:", previsao)
-    print("Regra aplicada:", regra)
-    print("Sugestão:", resposta)
+    if internet_lenta and not queda_frequente:
+        regras.append((
+            "R5 - Internet lenta",
+            "Veja quantos aparelhos estao conectados e compare com sua velocidade contratada.",
+        ))
 
-    print("\nEssa é uma orientação inicial.")
+    if usa_cabo and not cabo:
+        regras.append((
+            "R6 - Problema no cabo de rede",
+            "Confira a conexao do cabo e veja se ele esta danificado.",
+        ))
 
+    if problema_recente and not reiniciou:
+        regras.append((
+            "R7 - Falha recente",
+            "Tente reiniciar o roteador e confira os cabos.",
+        ))
 
+    if not sites_abrem and wifi:
+        regras.append((
+            "R8 - Possivel problema de DNS",
+            "Confira as configuracoes de DNS do dispositivo.",
+        ))
 
-# 7. Programa principal
+    if queda_frequente and not reiniciou:
+        regras.append((
+            "R9 - Instabilidade",
+            "Verifique o roteador e os cabos. Observe se a conexao continua caindo.",
+        ))
+
+    if queda_frequente and reiniciou:
+        regras.append((
+            "R10 - Instabilidade persistente",
+            "Como reiniciar nao resolveu, talvez seja melhor falar com o provedor.",
+        ))
+
+    print("\n" + "=" * 45)
+    print("RESULTADO")
+    print("=" * 45)
+    print("Minha ideia:", previsao)
+    print("\nO que podemos conferir:")
+
+    for titulo, sugestao in regras:
+        print(f"\n{titulo}")
+        print(f"Sugestao: {sugestao}")
+
 def main():
-
-    print("=" * 40)
-    print("SISTEMA ESPECIALISTA DE SUPORTE TÉCNICO")
-    print("=" * 40)
+    print("=" * 45)
+    print("SUPORTE TECNICO")
+    print("=" * 45)
 
     while True:
-        analisar()
-
-        continuar = perguntar("\nDeseja analisar outro problema?")
-
-        if continuar == 0:
-            print("\nBeleza! Até mais.")
+        diagnosticar()
+        if not perguntar("\nQuer analisar outra vez?"):
+            print("\nBeleza! Ate mais.")
             break
 
 
