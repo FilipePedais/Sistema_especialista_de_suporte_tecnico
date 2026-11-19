@@ -1,8 +1,8 @@
-# Sistema Especialista de Suporte Técnico
+# Suporte Técnico
 
-Projeto didático desenvolvido em Python que simula um sistema de suporte técnico para identificar possíveis problemas de conexão com a internet.
+Um projeto simples em Python que faz perguntas sobre a conexão com a internet, sugere uma possível causa e apresenta dicas para resolver o problema.
 
-O programa faz algumas perguntas ao usuário, utiliza um modelo de aprendizado de máquina para sugerir uma categoria de problema e aplica regras para apresentar uma possível solução.
+O programa combina um modelo de aprendizado de máquina com regras de diagnóstico. A ideia é ajudar a investigar problemas comuns, não substituir o suporte do provedor.
 
 ## Requisitos
 
@@ -10,162 +10,94 @@ O programa faz algumas perguntas ao usuário, utiliza um modelo de aprendizado d
 - pandas
 - scikit-learn
 
-## Como instalar
+## Instalação
 
-No terminal do VS Code, execute:
+No terminal, instale as bibliotecas necessárias:
 
 ```bash
-pip install pandas scikit-learn
+pip install -r requirements.txt
 ```
 
 ## Como executar
+
+Na pasta do projeto, rode:
 
 ```bash
 python main.py
 ```
 
-Responda às perguntas digitando sim ou não. O sistema também aceita outras formas de resposta, como `s`, `n`, `claro`, `aham`, `positivo`, `negativo`, `yes` e `no`.
+Responda às perguntas com `s` ou `sim` para sim e `n` ou `não` para não. Maiúsculas e acentos são aceitos. Se a resposta não for reconhecida, o programa pede para tentar novamente.
+
+### Sair a qualquer momento
+
+Digite `exit` ou `sair` em qualquer pergunta para encerrar o programa.
+
+## Perguntas
+
+O programa pergunta sobre:
+
+- As luzes do roteador estão acesas?
+- O nome da rede Wi-Fi aparece?
+- Outro aparelho consegue acessar a internet?
+- A internet está muito lenta?
+- Você está usando cabo de rede?
+- Se estiver usando cabo, ele está conectado direitinho?
+- A internet parou de funcionar de repente?
+- Você consegue acessar algum site?
+- A internet cai e volta várias vezes?
+- Você já tentou reiniciar o roteador?
+
+A pergunta sobre o cabo só aparece quando a resposta sobre o uso de cabo é sim.
 
 ## Como funciona
 
-O sistema combina aprendizado de máquina com regras SE... ENTÃO....
+### Modelo de aprendizado de máquina
 
-| Componente | Onde está no código | O que faz |
-|---|---|---|
-| Base de dados | `dados` | Armazena exemplos simulados de problemas de internet |
-| Fatos | `roteador`, `wifi` e `outro` | Armazena as respostas do usuário |
-| Base de conhecimento | Condições `if` e `elif` | Contém as regras SE... ENTÃO... |
-| Motor de inferência | Condições dentro de `analisar()` | Verifica as respostas e identifica qual regra deve ser aplicada |
-| Interface | `perguntar()` e `main()` | Faz as perguntas e apresenta o resultado |
-
-## Perguntas feitas
-
-| Fato | Pergunta | Valores |
-|---|---|---|
-| `roteador` | As luzes do roteador estão acesas? | `1` = sim / `0` = não |
-| `wifi` | A rede Wi-Fi aparece? | `1` = sim / `0` = não |
-| `outro` | Outro aparelho consegue acessar a internet? | `1` = sim / `0` = não |
-
-## Regras do sistema especialista
-
-As regras representam as condições utilizadas pelo sistema para identificar possíveis problemas e apresentar sugestões.
-
-### R1 – Problema no roteador
-
-**SE:** As luzes do roteador não estão acesas (`roteador = 0`).
-
-**ENTÃO:** O sistema identifica uma possível falta de energia ou problema na alimentação do roteador.
-
-**Sugestão:** Confira a tomada e a fonte do roteador.
-
-### R2 – Problema na rede Wi-Fi
-
-**SE:** O roteador está ligado (`roteador = 1`) e a rede Wi-Fi não aparece (`wifi = 0`).
-
-**ENTÃO:** O sistema identifica uma possível falha na transmissão da rede sem fio.
-
-**Sugestão:** Verifique se o Wi-Fi está ativado e reinicie o roteador.
-
-### R3 – Problema no dispositivo
-
-**SE:** O roteador está ligado (`roteador = 1`), a rede Wi-Fi aparece (`wifi = 1`) e outro aparelho consegue acessar a internet (`outro = 1`).
-
-**ENTÃO:** O sistema identifica uma possível falha no dispositivo utilizado pelo usuário.
-
-**Sugestão:** Verifique as configurações de rede do dispositivo que está apresentando o problema.
-
-### R4 – Possível problema no provedor
-
-**SE:** O roteador está ligado (`roteador = 1`), a rede Wi-Fi aparece (`wifi = 1`) e outro aparelho não consegue acessar a internet (`outro = 0`).
-
-**ENTÃO:** O sistema identifica que nenhum dos aparelhos consegue acessar a internet, indicando uma possível falha na conexão ou no provedor.
-
-**Sugestão:** Reinicie o roteador. Se o problema continuar, entre em contato com seu provedor de internet.
-
-## Como as regras são aplicadas
-
-O sistema verifica as respostas do usuário seguindo uma ordem de condições:
-
-```text
-Respostas do usuário
-        |
-        v
-   Verifica R1
-        |
-   Se não atender
-        v
-   Verifica R2
-        |
-   Se não atender
-        v
-   Verifica R3
-        |
-   Se não atender
-        v
-   Aplica R4
-        |
-        v
-   Apresenta o resultado
-```
-
-A primeira regra compatível com as respostas é aplicada. Por isso, o sistema apresenta uma única sugestão por análise.
-
-## Exemplo de execução
-
-**Entradas:**
-- Luzes do roteador acesas: sim
-- Rede Wi-Fi aparece: sim
-- Outro aparelho acessa a internet: não
-
-**Resultado:**
-
-```text
---- Resultado ---
-
-Modelo identificou: provedor
-Regra aplicada: R4
-
-Sugestão:
-Reinicie o roteador. Se continuar,
-fale com seu provedor.
-
-Essa é uma orientação inicial.
-O modelo utiliza exemplos fictícios para fins de estudo.
-```
-
-## Aprendizado de máquina
-
-O projeto utiliza o algoritmo `DecisionTreeClassifier`, disponível na biblioteca scikit-learn.
-
-O modelo é treinado com exemplos simulados de problemas de internet. Depois do treinamento, ele recebe as respostas do usuário e prevê uma categoria:
+O `DecisionTreeClassifier`, do scikit-learn, é treinado com exemplos simulados que estão no próprio código. Com as respostas sobre o roteador, a rede Wi-Fi e outro aparelho, ele sugere uma categoria:
 
 - `roteador`
 - `wifi`
 - `provedor`
 - `dispositivo`
 
-O programa também calcula a acurácia e apresenta a matriz de confusão para avaliar o resultado do modelo.
+Essa sugestão aparece como **“Minha ideia”** no resultado.
 
-A previsão do modelo é apresentada separadamente da regra aplicada. Assim, é possível observar a participação do aprendizado de máquina e das regras no diagnóstico.
+### Regras de diagnóstico
+
+Além da sugestão do modelo, o programa verifica as respostas e pode apresentar uma ou mais regras:
+
+| Regra | Quando se aplica | Sugestão |
+|---|---|---|
+| R1 - Roteador desligado | As luzes do roteador não estão acesas. | Confira a tomada, a fonte e a energia do roteador. |
+| R2 - Problema na rede Wi-Fi | O roteador está ligado, mas o nome da rede não aparece. | Ative o Wi-Fi e tente reiniciar o roteador. |
+| R3 - Problema no dispositivo | O roteador está ligado, a rede aparece e outro aparelho acessa a internet. | Confira a configuração de rede do dispositivo com problema. |
+| R4 - Possível falha no provedor | O roteador está ligado, a rede aparece e outro aparelho também não acessa a internet. | Reinicie o roteador. Se continuar, fale com seu provedor. |
+| R5 - Internet lenta | A internet está lenta e não cai com frequência. | Confira quantos aparelhos estão conectados e a velocidade contratada. |
+| R6 - Problema no cabo de rede | Está usando cabo, mas ele não está conectado corretamente. | Confira a conexão e veja se o cabo está danificado. |
+| R7 - Falha recente | A internet parou de repente e o roteador ainda não foi reiniciado. | Tente reiniciar o roteador e confira os cabos. |
+| R8 - Possível problema de DNS | Nenhum site abre, mas a rede Wi-Fi aparece. | Confira as configurações de DNS do dispositivo. |
+| R9 - Instabilidade | A conexão cai com frequência e o roteador ainda não foi reiniciado. | Verifique o roteador e os cabos; observe se as quedas continuam. |
+| R10 - Instabilidade persistente | A conexão cai com frequência mesmo depois de reiniciar o roteador. | Fale com o provedor. |
+
+As regras R1 a R4 são alternativas: o programa aplica a primeira que corresponder às respostas. As regras R5 a R10 são verificadas separadamente e podem aparecer junto com uma delas.
+
+Depois do resultado, você pode iniciar outra análise respondendo sim à pergunta **“Quer analisar outra vez?”**.
 
 ## Limitações
 
-- Os dados utilizados no treinamento são fictícios e foram criados apenas para fins didáticos.
-- O modelo utiliza uma quantidade pequena de exemplos.
-- As regras são fixas e foram escritas manualmente.
-- O sistema considera apenas alguns problemas básicos de conexão com a internet.
-- As sugestões não garantem a identificação da causa real do problema.
+- Os exemplos de treinamento são fictícios e em pequena quantidade.
+- As regras são fixas e cobrem apenas alguns problemas comuns.
+- O diagnóstico é uma sugestão; ele pode não identificar a causa real da falha.
 
 ## Estrutura do projeto
 
 ```text
 Sistema_especialista_de_suporte_tecnico/
-│
 ├── main.py
 ├── README.md
 └── requirements.txt
 ```
 
-## Objetivo do projeto
+## Objetivo
 
-O objetivo é demonstrar de forma simples como o aprendizado de máquina pode ser combinado com regras de um sistema especialista para analisar informações, identificar possíveis problemas e apresentar sugestões ao usuário.
+Demonstrar, de forma prática, como combinar um modelo simples de aprendizado de máquina com regras para investigar problemas de conexão e sugerir o que conferir.
