@@ -101,3 +101,13 @@ Sistema_especialista_de_suporte_tecnico/
 ## Objetivo
 
 Demonstrar, de forma prática, como combinar um modelo simples de aprendizado de máquina com regras para investigar problemas de conexão e sugerir o que conferir.
+
+## Discussão ética
+
+Este projeto é uma ajuda inicial, não um especialista de verdade. O resultado pode estar errado, principalmente porque o modelo foi treinado com poucos exemplos simulados. Por isso, a sugestão não deve ser tratada como uma certeza nem substituir um técnico ou o atendimento do provedor.
+
+Também é importante pensar na privacidade: o programa faz perguntas sobre a conexão, mas não precisa coletar nome, senha, endereço ou outros dados pessoais. Em uma versão usada por mais pessoas, seria essencial deixar claro quais dados são armazenados, evitar coletar o que não for necessário e proteger qualquer informação registrada. Como os exemplos são limitados, o sistema também pode não funcionar bem para todos os tipos de conexão ou situação.
+
+## Declaração de uso de IA
+
+A inteligência artificial foi usada como apoio durante o desenvolvimento e a organização deste projeto, principalmente para revisar textos, sugerir melhorias na documentação e discutir possibilidades para o sistema. O código, as regras e as decisões finais foram revisados e adaptados pelo autor, que continua responsável pelo resultado do trabalho.
